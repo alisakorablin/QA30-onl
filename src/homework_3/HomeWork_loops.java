@@ -13,7 +13,7 @@ public class HomeWork_loops {
     }
 
     //Task1: При помощи цикла for вывести на экран нечетные числа от 1 до 99
-    public static void setFor() {
+    public static void setFor(){
         System.out.println("*****************TASK1****************");
         System.out.println("Здравствуйте! Здесь выведем нечетные числа от 1 до 99 с помощью цикла for");
 
