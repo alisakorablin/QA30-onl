@@ -1,5 +1,6 @@
 package homework_guessword;
 
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -29,9 +30,13 @@ public class GuessWord {
 
     //стартуем игру
     public static void startGame(){
+        //Scanner scanner = input();
         getIntroductoryMsg();
 
+        boolean playAgain = true;
+
         if (playGame()){
+
             System.out.println("LETS PLAY GAME !");
 
             getInstructions();
@@ -44,26 +49,22 @@ public class GuessWord {
             //вызвали метод words() котор массив со словами
             //потом пробросили этот массив в getRandomWord()
             //вернули строчку и через метод toCharArray() трансформировали его в массив символов
-            char[] hiddenWord = getRandomWord(words()).toCharArray();
+            //char[] hiddenWord = getRandomWord(words()).toCharArray();
+            String hiddenWord = getRandomWord(words());
+            char[] guessedLetters = defineGuessedLetters(hiddenWord.length());
+
 
             System.out.println("*********************************************************************");
             System.out.println("AI have generated a hidden word for you. It is time to start a game");
             System.out.println("Your hidden word is: ".toUpperCase());
-            showWord(hiddenWord);
+            showWord(guessedLetters);//было так showWord(hiddenWord);
             System.out.println("*********************************************************************");
 
             while(true){
                 System.out.println("Please, enter a LETTER or a WHOLE WORD to GUESS");
-                //break;
 
-                //превратили строчку hiddenWords из типа Стринг в массив символов для упрощения
-               // char[] hiddenWordByLetters = hiddenWord.toCharArray();
+                String input = input().nextLine();
 
-               String input = input().nextLine();
-
-
-                //!!!!!добавить а что если я ничего не ввел? сделать проверку и дать мне возможность
-                //исправить ошибку!!!!!!
                 if (input.length() == 1){
                     //1- если ввели одну букву
                     //1) проверить если ли такая буква
@@ -75,6 +76,19 @@ public class GuessWord {
                     // и продолож вводить буквы
                     //следует проверить не закончились ли буквы у нас
                     //если все буквы отгаданы - проверка статуса и ВЫ ПОБЕДИЛИ
+                    char letter = input.charAt(0);
+                    if (!isLetterInWord(letter, hiddenWord)) {
+                        System.out.println("There is no such letter");
+                        continue;
+                    }
+                    updateGuessedLetters(hiddenWord, guessedLetters, letter);
+                    showWord(guessedLetters);
+
+                    if (isWordGuessed(guessedLetters, hiddenWord)) {
+                        System.out.println("YOU HAVE GUESSED THE WORD. YOU HAVE WON!");
+                        break; // Exit the loop
+                    }
+
 
                     //добавить механиз повтора игры то есть если я победил не просто закончить игру
                     //а спросить меня: может еще ? да - заново . нет -прощайте и программа заканчивается
@@ -83,15 +97,26 @@ public class GuessWord {
                     //String.valueOf()-> превращает значения в строчку
                     //после этого .equalsIgnoreCase(_значения) - проверить слова на совпадения
 
-                    if (checkWord(input, hiddenWord)){
+                    if (checkWord(input, hiddenWord.toCharArray())) {
                         System.out.println("YOU HAVE GUESSED THE WORD. YOU HAVE WON!");
-                        return;
+                        break;
                     } else{
                         System.out.println("YOU MISSED!");
                     }
                 }
             }
-        } else{
+
+            System.out.print("Would you like to play again? (y - YES, other - NO): ");
+            String playAgainInput = input().nextLine();
+            playAgain = playAgainInput.equalsIgnoreCase("y");
+
+            if (!playAgain) {
+                System.out.println("You said NO. GOODBYE !");
+            } else{
+                startGame();
+            }
+
+        }else{
             System.out.println("You said NO. GOODBYE !");
         }
     }
@@ -140,7 +165,31 @@ public class GuessWord {
     }
 
 
-    public static Scanner input(){
+   public static char[] defineGuessedLetters(int wordLength) {
+        char[] guessedLetters = new char[wordLength];
+        Arrays.fill(guessedLetters, '*');
+        return guessedLetters;
+    }
+
+   public static void updateGuessedLetters(String wordToGuess, char[] guessedLetters, char letter) {
+        for (int i = 0; i < wordToGuess.length(); i++) {
+            if (Character.toLowerCase(wordToGuess.charAt(i)) == Character.toLowerCase(letter)) {
+                guessedLetters[i] = wordToGuess.charAt(i);
+            }
+        }
+   }
+
+   public static boolean isLetterInWord(char letter, String word) {
+        return word.toLowerCase().contains(String.valueOf(letter).toLowerCase());
+        //return word.contains(String.valueOf(letter));
+   }
+
+   public static boolean isWordGuessed(char[] guessedLetters, String word) {
+        String guessedWord = new String(guessedLetters);
+        return guessedWord.equalsIgnoreCase(word);
+   }
+
+   public static Scanner input(){
         return new Scanner(System.in);
     }
 }
